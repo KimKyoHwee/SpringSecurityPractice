@@ -14,6 +14,13 @@ public class JoinService {
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     public void joinProcess(JoinDto joinDto){
+        //db에 동일한 username이 존재하는지 검증
+        boolean isUser=userRepository.existsByUsername(joinDto.getUsername());
+        if(isUser) {//존재시 return(exception발생시켜야함)
+            System.out.println("need to have exception");
+            return;
+        }
+        //이후 회원저장로직
         UserEntity user=new UserEntity();
         user.setUsername(joinDto.getUsername());
         user.setPassword(bCryptPasswordEncoder.encode(joinDto.getPassword())); //비밀번호 암호화 후 저장
