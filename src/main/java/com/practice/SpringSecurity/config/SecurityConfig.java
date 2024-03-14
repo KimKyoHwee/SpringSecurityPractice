@@ -34,6 +34,13 @@ public class SecurityConfig {
         //csrf : spring security에 자동으로 설정되어 있는사이트 위변조 방지 설정(csrf토큰도 같이 보내주어야 하므로 일단 disable)
         http
                 .csrf((auth)->auth.disable());
+        http  //다중 로그인 설정
+                .sessionManagement((auth)->auth
+                        .maximumSessions(1)
+                        .maxSessionsPreventsLogin(true));
+        http  //세션 고정 보호
+                .sessionManagement((auth)->auth
+                        .sessionFixation().changeSessionId());
         return http.build();
     }
 }
