@@ -2,6 +2,9 @@ package com.practice.SpringSecurity.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -20,17 +23,20 @@ public class SecurityConfig {
         //인가작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/", "/login", "/loginProc", "/join", "/joinProc").permitAll()  //모두 접근 가능
-                        .requestMatchers("/admin").hasRole("ADMIN")  //ADMIN role 가져야 접근가능
-                        .requestMatchers("/my/**").hasAnyRole("ADMIN", "USER") //여러가지 role 지정
-                        .anyRequest().authenticated()  //로그인만 진행하면 접근가능(나머지 경로들)
+                        .requestMatchers("/login").permitAll()
+                        .requestMatchers("/").hasAnyRole("A", "B", "C")
+                        .requestMatchers("/manager").hasAnyRole("B", "C")
+                        .requestMatchers("/admin").hasAnyRole("C")
+                        .anyRequest().authenticated()
                 );
         //로그인 페이지 redirection 설정, html 로그인 페이지에서 넘어온 데이터를 security가 받아서 로그인 처리 진행
-        http
-                .formLogin((auth)->auth.loginPage("/login")
-                        .loginProcessingUrl("/loginProc")
-                        .permitAll()   //이 경로로 아무나 들어올 수 있다.
-                );
+//        http
+//                .formLogin((auth)->auth.loginPage("/login")
+//                        .loginProcessingUrl("/loginProc")
+//                        .permitAll()   //이 경로로 아무나 들어올 수 있다.
+//                );
+        http //http basic방식으로 인증 구현(헤더로 회원정보 넘어와서 로그인)
+                .httpBasic(Customizer.withDefaults());
         //csrf : spring security에 자동으로 설정되어 있는사이트 위변조 방지 설정(csrf토큰도 같이 보내주어야 하므로 일단 disable)
 //        http
 //                .csrf((auth)->auth.disable());
@@ -45,5 +51,16 @@ public class SecurityConfig {
                 .sessionManagement((auth)->auth
                         .sessionFixation().changeSessionId());
         return http.build();
+    }
+
+    @Bean 
+    public RoleHierarchy roleHierarchy() {  //계층권한 설정
+
+        RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
+
+        hierarchy.setHierarchy("ROLE_C > ROLE_B\n" +
+                "ROLE_B > ROLE_A");
+
+        return hierarchy;
     }
 }
