@@ -32,8 +32,11 @@ public class SecurityConfig {
                         .permitAll()   //이 경로로 아무나 들어올 수 있다.
                 );
         //csrf : spring security에 자동으로 설정되어 있는사이트 위변조 방지 설정(csrf토큰도 같이 보내주어야 하므로 일단 disable)
-        http
-                .csrf((auth)->auth.disable());
+//        http
+//                .csrf((auth)->auth.disable());
+        http //로그아웃은 GET요청이기 때문에 csrf 토큰 검정이 안돼서 설정추가
+                .logout((auth)->auth.logoutUrl("/logout"))
+                        .logoutSuccessUrl("/")
         http  //다중 로그인 설정
                 .sessionManagement((auth)->auth
                         .maximumSessions(1)
