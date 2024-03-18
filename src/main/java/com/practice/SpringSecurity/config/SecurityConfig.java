@@ -43,7 +43,7 @@ public class SecurityConfig {
         http //로그아웃은 GET요청이기 때문에 csrf 토큰 검정이 안돼서 설정추가
                 .logout((auth)->auth.logoutUrl("/logout")
                         .logoutSuccessUrl("/"));
-        http  //다중 로그인 설정
+        http  //다중 로그인 설정(맥시멈 1개, 넘어갈시 기존 세션 로그아웃)
                 .sessionManagement((auth)->auth
                         .maximumSessions(1)
                         .maxSessionsPreventsLogin(true));
